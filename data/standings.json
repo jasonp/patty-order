@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-02-20T07:08:10.175Z",
+  "generatedAt": "2026-02-20T12:58:13.907Z",
   "singles": [
     {
       "name": "Jason Preston",
@@ -12,6 +12,12 @@
       "points": 30,
       "wins": 0,
       "losses": 1
+    },
+    {
+      "name": "Ethan Chung",
+      "points": 0,
+      "wins": 0,
+      "losses": 0
     }
   ],
   "doubles": [
