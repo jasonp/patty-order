@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Patty Order | Quarterpounders Tennis Ladder</title>
+    <style>
+        :root {
+            --green-dark: #1a5c2a;
+            --green-mid: #2d8a4e;
+            --green-light: #4caf50;
+            --green-pale: #e8f5e9;
+            --gold: #ffd700;
+            --gold-dark: #b8960c;
+            --white: #ffffff;
+            --gray-50: #fafafa;
+            --gray-100: #f5f5f5;
+            --gray-200: #eeeeee;
+            --gray-300: #e0e0e0;
+            --gray-500: #9e9e9e;
+            --gray-700: #616161;
+            --gray-900: #212121;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: var(--gray-100);
+            color: var(--gray-900);
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+            color: var(--white);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: 0.5px; }
+        header h1 .emoji { font-size: 1.4rem; }
+        header p { margin-top: 0.3rem; font-size: 0.95rem; opacity: 0.85; font-weight: 400; }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            background: var(--white);
+            border-bottom: 2px solid var(--gray-200);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .tab {
+            padding: 0.9rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--gray-500);
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        .tab:hover { color: var(--green-mid); }
+        .tab.active { color: var(--green-dark); border-bottom-color: var(--green-light); }
+
+        .content { max-width: 640px; margin: 0 auto; padding: 1rem; }
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        .loading {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--gray-500);
+            font-size: 1rem;
+        }
+
+        .loading .spinner {
+            display: inline-block;
+            width: 28px;
+            height: 28px;
+            border: 3px solid var(--gray-300);
+            border-top-color: var(--green-light);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 0.75rem;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .error { text-align: center; padding: 2rem 1rem; color: #c62828; font-size: 0.95rem; }
+
+        .standings-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+        }
+
+        .standings-table thead th {
+            background: var(--green-dark);
+            color: var(--white);
+            padding: 0.75rem 1rem;
+            text-align: left;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .standings-table thead th:first-child { width: 50px; text-align: center; }
+        .standings-table thead th.col-record { text-align: center; width: 70px; }
+        .standings-table thead th:last-child { text-align: right; width: 90px; }
+
+        .standings-table tbody tr {
+            border-bottom: 1px solid var(--gray-200);
+            transition: background 0.15s ease;
+        }
+
+        .standings-table tbody tr:last-child { border-bottom: none; }
+        .standings-table tbody tr:hover { background: var(--green-pale); }
+
+        .standings-table td { padding: 0.75rem 1rem; font-size: 0.95rem; }
+        .standings-table td:first-child { text-align: center; font-weight: 700; color: var(--gray-500); }
+        .standings-table td.col-record { text-align: center; color: var(--gray-700); font-size: 0.85rem; font-variant-numeric: tabular-nums; }
+        .standings-table td:last-child { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--green-dark); }
+
+        .rank-1 td:first-child, .rank-2 td:first-child, .rank-3 td:first-child { font-size: 1.2rem; }
+        .rank-1 td:first-child { color: var(--gold-dark); }
+        .rank-2 td:first-child { color: #78909c; }
+        .rank-3 td:first-child { color: #8d6e63; }
+        .rank-1 { background: linear-gradient(90deg, #fffde7 0%, var(--white) 40%); }
+
+        .player-name { font-weight: 500; }
+        .empty-state { text-align: center; padding: 3rem 1rem; color: var(--gray-500); }
+        .empty-state p { font-size: 1rem; margin-top: 0.5rem; }
+
+        .last-updated { text-align: center; padding: 1rem; font-size: 0.8rem; color: var(--gray-500); }
+
+        .point-info {
+            background: var(--white);
+            border-radius: 10px;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            font-size: 0.85rem;
+            color: var(--gray-700);
+        }
+
+        .point-info h3 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--green-dark); margin-bottom: 0.5rem; }
+        .point-info .match-types { display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem 1rem; }
+        .point-info .match-type { display: flex; justify-content: space-between; }
+        .point-info .match-type .pts { font-weight: 600; color: var(--green-dark); }
+        .point-info .note { margin-top: 0.5rem; font-size: 0.8rem; color: var(--gray-500); font-style: italic; }
+
+        footer { text-align: center; padding: 1.5rem 1rem; font-size: 0.8rem; color: var(--gray-500); }
+
+        @media (max-width: 480px) {
+            header h1 { font-size: 1.4rem; }
+            .tab { padding: 0.75rem 1.5rem; font-size: 0.9rem; }
+            .content { padding: 0.75rem; }
+            .standings-table td, .standings-table thead th { padding: 0.6rem 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><span class="emoji">🍔</span> The Patty Order</h1>
+        <p>Quarterpounders Tennis Ladder</p>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab active" data-tab="singles">Singles</button>
+        <button class="tab" data-tab="doubles">Doubles</button>
+    </nav>
+
+    <main class="content">
+        <div id="singles-panel" class="panel active">
+            <div id="singles-loading" class="loading">
+                <div class="spinner"></div>
+                <div>Loading singles standings...</div>
+            </div>
+            <div id="singles-content" style="display:none;"></div>
+        </div>
+
+        <div id="doubles-panel" class="panel">
+            <div id="doubles-loading" class="loading">
+                <div class="spinner"></div>
+                <div>Loading doubles standings...</div>
+            </div>
+            <div id="doubles-content" style="display:none;"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div id="last-updated" class="last-updated"></div>
+    </footer>
+
+    <script>
+        const STANDINGS_URL = 'data/standings.json';
+
+        // =========================================================
+        // Rendering
+        // =========================================================
+        function renderStandings(standings, containerId) {
+            const container = document.getElementById(containerId);
+
+            if (!standings || standings.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No standings yet. Submit some match results!</p></div>';
+                return;
+            }
+
+            let rows = '';
+            standings.forEach((entry, i) => {
+                const rank = i + 1;
+                const rankDisplay = rank <= 3 ? ['\u{1F947}','\u{1F948}','\u{1F949}'][rank - 1] : rank;
+                const rankClass = rank <= 3 ? `rank-${rank}` : '';
+                const record = `${entry.wins}-${entry.losses}`;
+                rows += `<tr class="${rankClass}">` +
+                    `<td>${rankDisplay}</td>` +
+                    `<td class="player-name">${escapeHtml(entry.name)}</td>` +
+                    `<td class="col-record">${record}</td>` +
+                    `<td>${entry.points.toLocaleString()}</td>` +
+                    `</tr>`;
+            });
+
+            container.innerHTML = `
+                <table class="standings-table">
+                    <thead><tr><th>#</th><th>Name</th><th class="col-record">W-L</th><th>Points</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>`;
+        }
+
+        function renderPointInfo(matchTypes, containerId) {
+            const container = document.getElementById(containerId);
+            if (!matchTypes || !matchTypes.length) return;
+
+            let typesHtml = '';
+            matchTypes.forEach(mt => {
+                typesHtml += `<div class="match-type"><span>${escapeHtml(mt.name)}</span><span class="pts">${mt.points} pts</span></div>`;
+            });
+
+            const infoBox = document.createElement('div');
+            infoBox.className = 'point-info';
+            infoBox.innerHTML = `
+                <h3>Points per Win</h3>
+                <div class="match-types">${typesHtml}</div>
+                <div class="note">Losers earn 10% of win points. Points expire after 6 months.</div>`;
+            container.prepend(infoBox);
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function renderAll(standings) {
+            document.getElementById('singles-loading').style.display = 'none';
+            const singlesContent = document.getElementById('singles-content');
+            singlesContent.style.display = 'block';
+            renderStandings(standings.singles, 'singles-content');
+            renderPointInfo(standings.matchTypes, 'singles-content');
+
+            document.getElementById('doubles-loading').style.display = 'none';
+            const doublesContent = document.getElementById('doubles-content');
+            doublesContent.style.display = 'block';
+            renderStandings(standings.doubles, 'doubles-content');
+            renderPointInfo(standings.matchTypes, 'doubles-content');
+
+            const genDate = new Date(standings.generatedAt);
+            const ageHrs = Math.round((Date.now() - genDate.getTime()) / 3600000);
+            const ageText = ageHrs < 1 ? 'less than an hour ago' : `${ageHrs}h ago`;
+            document.getElementById('last-updated').textContent = `Standings as of ${genDate.toLocaleString()} (updated ${ageText})`;
+        }
+
+        // =========================================================
+        // Tab switching
+        // =========================================================
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-panel`).classList.add('active');
+            });
+        });
+
+        // =========================================================
+        // Init — load from static JSON (no API calls)
+        // =========================================================
+        async function init() {
+            try {
+                const res = await fetch(STANDINGS_URL);
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const standings = await res.json();
+                renderAll(standings);
+            } catch (err) {
+                console.error('Failed to load standings:', err);
+                document.querySelectorAll('.loading').forEach(el => {
+                    el.innerHTML = '<div class="error">Failed to load standings. Please try again later.</div>';
+                });
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

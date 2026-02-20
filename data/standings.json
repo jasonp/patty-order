@@ -1,0 +1,17 @@
+{
+  "generatedAt": "2026-02-19T12:00:00.000Z",
+  "singles": [
+    { "name": "Jason Preston", "points": 300, "wins": 1, "losses": 0 },
+    { "name": "James Manzano", "points": 30, "wins": 0, "losses": 1 }
+  ],
+  "doubles": [
+    { "name": "Ethan and Jason", "points": 300, "wins": 1, "losses": 0 },
+    { "name": "Ted and James", "points": 30, "wins": 0, "losses": 1 }
+  ],
+  "matchTypes": [
+    { "name": "Tiebreak", "points": 50 },
+    { "name": "Fast 4", "points": 100 },
+    { "name": "One Set", "points": 150 },
+    { "name": "Best of 3", "points": 300 }
+  ]
+}
