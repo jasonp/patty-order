@@ -2,8 +2,8 @@ name: Update Standings
 
 on:
   schedule:
-    # Every 12 hours at midnight and noon UTC
-    - cron: '0 0,12 * * *'
+    # Every 2 hours
+    - cron: '0 */2 * * *'
   workflow_dispatch: # Allow manual trigger from GitHub UI
 
 jobs:
