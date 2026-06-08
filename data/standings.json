@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-06-08T14:03:57.675Z",
+  "generatedAt": "2026-06-08T18:23:05.220Z",
   "singles": [
     {
       "name": "Jason Preston",
-      "points": 305,
+      "points": 315,
       "wins": 1,
-      "losses": 1
+      "losses": 3
     },
     {
       "name": "Bryan Liu",
-      "points": 50,
-      "wins": 1,
+      "points": 150,
+      "wins": 3,
       "losses": 0
     },
     {
