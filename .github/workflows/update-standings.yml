@@ -2,8 +2,12 @@ name: Update Standings
 
 on:
   schedule:
-    # Every 2 hours
-    - cron: '0 */2 * * *'
+    # GitHub cron is UTC-only and not DST-aware. The hours below cover the
+    # union of PST (UTC-8) and PDT (UTC-7) conversions of 8am-10pm Pacific,
+    # so a run can fire at the right wall-clock time in either season. The
+    # "Check Pacific time window" step then filters out the off-season hours
+    # so it only actually runs every 2 hours from 8am to 10pm Pacific.
+    - cron: '0 0,1,2,3,4,5,6,15,16,17,18,19,20,21,22,23 * * *'
   workflow_dispatch: # Allow manual trigger from GitHub UI
 
 jobs:
@@ -14,17 +18,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check Pacific time window
+        id: window
+        run: |
+          # Manual runs always proceed.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "in_window=true" >> "$GITHUB_OUTPUT"
+            echo "Manual trigger; running regardless of time."
+            exit 0
+          fi
+          HOUR=$(TZ=America/Los_Angeles date +%H)
+          HOUR=$((10#$HOUR)) # strip leading zero
+          if [ $((HOUR % 2)) -eq 0 ] && [ "$HOUR" -ge 8 ] && [ "$HOUR" -le 22 ]; then
+            echo "in_window=true" >> "$GITHUB_OUTPUT"
+            echo "Pacific hour $HOUR:00 is in the 8am-11pm window; running."
+          else
+            echo "in_window=false" >> "$GITHUB_OUTPUT"
+            echo "Pacific hour $HOUR:00 is outside the 8am-11pm window; skipping."
+          fi
+
       - name: Setup Node
+        if: steps.window.outputs.in_window == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Fetch standings from Airtable
+        if: steps.window.outputs.in_window == 'true'
         env:
           AIRTABLE_API_KEY: ${{ secrets.AIRTABLE_API_KEY }}
         run: node build.js
 
       - name: Commit and push if changed
+        if: steps.window.outputs.in_window == 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
