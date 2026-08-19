@@ -1,12 +1,6 @@
 {
-  "generatedAt": "2026-08-18T23:20:31.437Z",
+  "generatedAt": "2026-08-19T01:10:37.749Z",
   "singles": [
-    {
-      "name": "Jason Preston",
-      "points": 315,
-      "wins": 1,
-      "losses": 3
-    },
     {
       "name": "Bryan Liu",
       "points": 150,
@@ -14,10 +8,10 @@
       "losses": 0
     },
     {
-      "name": "James Manzano",
-      "points": 30,
+      "name": "Jason Preston",
+      "points": 15,
       "wins": 0,
-      "losses": 1
+      "losses": 3
     },
     {
       "name": "Alex Ung",
@@ -27,6 +21,12 @@
     },
     {
       "name": "Ethan Chung",
+      "points": 0,
+      "wins": 0,
+      "losses": 0
+    },
+    {
+      "name": "James Manzano",
       "points": 0,
       "wins": 0,
       "losses": 0
